@@ -1,16 +1,17 @@
-+2015  //load count
-+3116  //subtract end
-+4212  //if zero end program
-+1017  //read input
-+4112  //if negative input end program
-+4212  //if zero input end program
-+3014  //add sum
-+2114  //store sum
-+2015  //load count
-+3018  //count++
-+2115  //store count
++2016  //load count
++3117  //subtract end
++4213  //if zero end program
++1018  //read input
++2018  //load input
++4113  //if negative input end program
++4213  //if zero input end program
++3015  //add sum
++2115  //store sum
++2016  //load count
++3019  //count++
++2116  //store count
 +4000  //go back to start
-+1114  //print sum
++1115  //print sum
 +4300  //end program
 +0000  //sum
 +0000  //count
