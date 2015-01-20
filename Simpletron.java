@@ -1,15 +1,31 @@
 import java.util.Scanner;
 
 public class Simpletron {
-	private static final int SENTINAL = -99999;
+//operation code constants
+	private static final int READ  = 10;
+	private static final int WRITE = 11;
+
+	private static final int LOAD  = 20;
+	private static final int STORE = 21;
+
+	private static final int ADD      = 30;
+	private static final int SUBTRACT = 31;
+	private static final int DIVIDE   = 32;
+	private static final int MULTIPLY = 33;
+
+	private static final int BRANCH     = 40;
+	private static final int BRANCHNEG  = 41;
+	private static final int BRANCHZERO = 42;
+	private static final int HALT       = 43;
+
 
 	private int[] memory;
 	private int accumulator;
-	private int instructionCounter;
+	private int instructionCounter;  //location in memory whose instruction is being performed now
 
-	private int operationCode;
-	private int operand;
-	private int instructionRegister;
+	private int operationCode;       //operation being currently performed, 1st two numbers of instructionRegister
+	private int operand;		     //memory location where operation is being operated on 2nd two numbers of instructionRegister
+	private int instructionRegister; //full instruction word
 
 
 	public Simpletron() {
@@ -37,6 +53,63 @@ public class Simpletron {
 		return true;
 	}
 
+	public void executeProgram() {
+		Scanner input = new Scanner(System.in);
+
+		while (true) {
+			instructionRegister = memory[instructionCounter];
+			operationCode = instructionRegister / 100;
+			operand = instructionRegister % 100;
+
+			switch (operationCode) {
+				//condense code branch, and branchneg are the only ops that don't instructioncounter++
+				case READ:        System.out.print("Enter an integer: ");
+							      memory[operand] = input.nextInt();
+							      instructionCounter++;
+							      break;
+				case WRITE:       System.out.println(memory[operand]);
+							      instructionCounter++;
+							      break;
+				case LOAD:        accumulator = memory[operand];
+							      instructionCounter++;
+							      break;
+				case STORE:       memory[operand] = accumulator;
+							      instructionCounter++;
+							      accumulator = 0;
+							      break;
+				case ADD:         accumulator += memory[operand];
+								  instructionCounter++;
+								  break;
+				case SUBTRACT:    accumulator -= memory[operand];
+								  instructionCounter++;
+								  break;
+				case DIVIDE:      accumulator /= memory[operand];     ///error checking here
+						          instructionCounter++;
+						          break;
+				case MULTIPLY:    accumulator *= memory[operand];
+								  instructionCounter++;
+								  break;
+				case BRANCH:      instructionCounter = operand;
+							      break;
+				case BRANCHNEG:   if (accumulator < 0) 
+									  instructionCounter = operand;
+							      else
+							      	  instructionCounter++;
+				                  break;
+				case BRANCHZERO:  if (accumulator == 0) 
+									  instructionCounter = operand;
+								  else
+								  	  instructionCounter++;
+								  break;
+				case HALT:      System.out.println("*** Simpletron execution terminated ***");
+							    return;
+
+			}
+
+		}
+	}
+
+	//post: all of the variables are printed off to the screen
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + formatWord(accumulator));
@@ -79,8 +152,8 @@ public class Simpletron {
 	}
 
 
-
 	public static void main(String [] args) {
+		final int SENTINAL = -99999;
 		Scanner input = new Scanner(System.in);
 		System.out.println("*** Welcome to Simpletron! ***");
 		System.out.println("*** Please enter your program one instruction  ***");
@@ -110,7 +183,10 @@ public class Simpletron {
 		System.out.println("*** Program loading completed ***");
 		System.out.println("*** Program execution begins  ***");
 		test.dumpMemory();
-
+		System.out.println();
+		test.executeProgram();
+		
+		
 	}
 
 
