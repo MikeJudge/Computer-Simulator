@@ -209,7 +209,7 @@ public class Simpletron {
 			word = input.nextInt();
 			if (word == SENTINAL)
 				break;
-			test.storeWord(index, word);
+			test.storeWord(index++, word);
 		}
 
 		System.out.println("*** Program loading completed ***");
