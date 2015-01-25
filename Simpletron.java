@@ -7,7 +7,7 @@
 import java.util.Scanner;
 
 public class Simpletron {
-	private static final int MEMORY_SIZE = 100;
+	private static final int MEMORY_SIZE = 1000;
 	private static final int MAX_WORD_SIZE = 9999;
 	private static final int MIN_WORD_SIZE = -9999;
 
@@ -138,12 +138,12 @@ public class Simpletron {
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + formatWord(accumulator));
-		System.out.println("instructionCounter" + "   " + instructionCounter);
+		System.out.println("instructionCounter" + "   " + "   " + formatCode(instructionCounter));
 		System.out.println("instructionRegister" + "  " + formatWord(instructionRegister));
-		System.out.println("operationCode" + "        " + operationCode);
-		System.out.println("operand" + "              " + operand);
+		System.out.println("operationCode" + "        " + "   " + formatCode(operationCode));
+		System.out.println("operand" + "              " + "   " + formatCode(operand));
 		System.out.println("\n" + "MEMORY:");
-		System.out.print("  ");
+		System.out.print("   ");
 
 		final int DIMEN = 10;
 		for (int i = 0; i < DIMEN; i++) {
@@ -151,9 +151,11 @@ public class Simpletron {
 		}
 		System.out.println();
 
-		for (int i = 0; i < DIMEN; i++) {
+		for (int i = 0; i < DIMEN*DIMEN; i++) {
 			if (i == 0)
-				System.out.print(" 0");
+				System.out.print("  0");
+			else if (i < 10)
+				System.out.print(" " + i + "0");
 			else
 				System.out.print(i + "0");
 			for (int n = 0; n < DIMEN; n++) {
@@ -166,13 +168,21 @@ public class Simpletron {
 	//post: returns word in +wxyz or -wxyz format
 	private String formatWord(int word) {
 		String s = word + "";
-		while (s.length() < 4)
+		while (s.length() < ((MAX_WORD_SIZE+"").length()))
 			s = "0" + s;
 		if (word >= 0)
 			s = "+" + s;
 		else
 			s = "-" + s;
 
+		return s;
+	}
+
+    //post: returns a two digit string with preceding 0's if necessary
+	private String formatCode(int code) {
+		String s = code + "";
+		while (s.length() < 2)
+			s = "0" + s;
 		return s;
 	}
 
@@ -199,7 +209,7 @@ public class Simpletron {
 		int word = 0;
 		int index = 0;
 		Simpletron test = new Simpletron();
-
+/*
 		while (true) {
 			if (index < 10)
 				System.out.print("0" + index + " ? ");
@@ -212,9 +222,11 @@ public class Simpletron {
 			test.storeWord(index++, word);
 		}
 
+*/
 		System.out.println("*** Program loading completed ***");
 		System.out.println("*** Program execution begins  ***");
 		test.executeProgram();
+		test.dumpMemory();
 		
 		
 	}
