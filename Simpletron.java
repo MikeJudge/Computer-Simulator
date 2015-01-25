@@ -12,8 +12,9 @@ public class Simpletron {
 	private static final int MIN_WORD_SIZE = -9999;
 
 	//operation code constants
-	private static final int READ  = 10;
-	private static final int WRITE = 11;
+	private static final int READ    = 10;
+	private static final int WRITE   = 11;
+	private static final int NEWLINE = 12;
 
 	private static final int LOAD  = 20;
 	private static final int STORE = 21;
@@ -92,9 +93,12 @@ public class Simpletron {
 							      storeWord(operand, input.nextInt());
 							      instructionCounter++;
 							      break;
-				case WRITE:       System.out.println(memory[operand]);
+				case WRITE:       System.out.print(memory[operand]);
 							      instructionCounter++;
 							      break;
+			    case NEWLINE:     System.out.println();
+			                      instructionCounter++;
+			                      break;
 				case LOAD:        accumulator = memory[operand];
 							      instructionCounter++;
 							      break;
