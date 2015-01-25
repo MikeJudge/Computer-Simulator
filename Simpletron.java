@@ -5,11 +5,13 @@
 * and the last three digits corresponding to an operand.                    *
 **************************************************************************/
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class Simpletron {
-	private static final int MEMORY_SIZE   = 1000;
-	private static final int MAX_WORD_SIZE = 99999;
-	private static final int MIN_WORD_SIZE = -99999;
+	private static final int MEMORY_SIZE    = 1000;
+	private static final int MAX_WORD_SIZE  = 99999;
+	private static final int MIN_WORD_SIZE  = -99999;
+	private static final int MAX_HEX_LENGTH = Integer.toHexString(MAX_WORD_SIZE).length();
 
 	//operation code constants
 	private static final int READ       = 10;
@@ -32,7 +34,7 @@ public class Simpletron {
 	private static final int HALT       = 43;
 
 
-	private int[] memory;			 //program is stored here
+	private String[] memory;		 //program is stored here
 	private int accumulator;
 	private int instructionCounter;  //location in memory whose instruction is being performed now
 
@@ -42,7 +44,8 @@ public class Simpletron {
 
 
 	public Simpletron() {
-		memory = new int[MEMORY_SIZE];
+		memory = new String[MEMORY_SIZE];
+		Arrays.fill(memory, intToHex(0));
 		accumulator 	    = 0;
 		instructionCounter  = 0;
 		operationCode       = 0;
@@ -60,7 +63,38 @@ public class Simpletron {
 			fatalError("*** index out of bounds ***");
 		}
 
-		memory[index] = word;
+		memory[index] = intToHex(word);
+	}
+
+	//post: string with hex representation of number
+	private String intToHex(int num) {
+		String s = Integer.toHexString(num).toUpperCase();
+		while (s.length() < MAX_HEX_LENGTH)
+			s = "0" + s;
+		if (num >= 0)
+			s = "+" + s;
+		else
+			s = "-" + s;
+		return s;
+	}
+
+	private int hexToInt(String hexString) {
+		int num = 0;
+		int n = 0;
+		char c;
+		for (int i = hexString.length() - 1; i > 0; i--) {
+			c = hexString.charAt(i);
+			if (c >= '0' && c <= '9')
+				num += (int)Math.pow(16, n) * (c - '0');
+			else
+				num += (int)Math.pow(16, n) * (c - 'A' + 10);
+			n++;
+		}
+		if (hexString.charAt(0) == '-')
+			num *= -1;
+
+		return num;
+
 	}
 
 	//returns false if the accumulator has overflowed the max or min WORD_SIZE
@@ -77,7 +111,7 @@ public class Simpletron {
 			if (instructionCounter >= MEMORY_SIZE || instructionCounter < 0)
 				fatalError("*** program execution failed ***");
 
-			instructionRegister = memory[instructionCounter];
+			instructionRegister = hexToInt(memory[instructionCounter]);
 			operationCode = instructionRegister / 1000;
 			operand = instructionRegister % 1000;
 
@@ -93,39 +127,39 @@ public class Simpletron {
 							      storeWord(operand, input.nextInt());
 							      instructionCounter++;
 							      break;
-				case WRITE:       System.out.print(memory[operand]);
+				case WRITE:       System.out.print(hexToInt(memory[operand]));
 							      instructionCounter++;
 							      break;
 			    case NEWLINE:     System.out.println();
 			                      instructionCounter++;
 			                      break;
-				case LOAD:        accumulator = memory[operand];
+				case LOAD:        accumulator = hexToInt(memory[operand]);
 							      instructionCounter++;
 							      break;
 				case STORE:       storeWord(operand, accumulator);
 							      instructionCounter++;
 							      accumulator = 0;
 							      break;
-				case ADD:         accumulator += memory[operand];
+				case ADD:         accumulator += hexToInt(memory[operand]);
 								  instructionCounter++;
 								  break;
-				case SUBTRACT:    accumulator -= memory[operand];
+				case SUBTRACT:    accumulator -= hexToInt(memory[operand]);
 								  instructionCounter++;
 								  break;
-				case DIVIDE:      if (memory[operand] == 0) //can't divide by zero
+				case DIVIDE:      if (hexToInt(memory[operand]) == 0) //can't divide by zero
         					      	 fatalError("*** attempt to divide by zero ***");
-								  accumulator /= memory[operand];     
+								  accumulator /= hexToInt(memory[operand]);     
 						          instructionCounter++;
 						          break;
-				case MULTIPLY:    accumulator *= memory[operand];
+				case MULTIPLY:    accumulator *= hexToInt(memory[operand]);
 								  instructionCounter++;
 								  break;
-				case REMAINDER:   if (memory[operand] == 0) //can't divide by zero
+				case REMAINDER:   if (hexToInt(memory[operand]) == 0) //can't divide by zero
 									 fatalError("*** attempt to divide by zero ***");
-								  accumulator %= memory[operand];
+								  accumulator %= hexToInt(memory[operand]);
 								  instructionCounter++;
 								  break;
-				case POWER:       accumulator = (int)Math.pow(accumulator,memory[operand]);
+				case POWER:       accumulator = (int)Math.pow(accumulator,hexToInt(memory[operand]));
 								  instructionCounter++;
 								  break;
 				case BRANCH:      instructionCounter = operand;
@@ -155,10 +189,10 @@ public class Simpletron {
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + formatWord(accumulator));
-		System.out.println("instructionCounter" + "   " + "    " + formatCode(instructionCounter));
+		System.out.println("instructionCounter" + "   " + "   " + formatCode(instructionCounter, 3));
 		System.out.println("instructionRegister" + "  " + formatWord(instructionRegister));
-		System.out.println("operationCode" + "        " + "    " + formatCode(operationCode));
-		System.out.println("operand" + "              " + "    " + formatCode(operand));
+		System.out.println("operationCode" + "        " + "    " + formatCode(operationCode, 2));
+		System.out.println("operand" + "              " + "   " + formatCode(operand, 3));
 		System.out.println("\n" + "MEMORY:");
 		System.out.print("   ");
 
@@ -176,13 +210,13 @@ public class Simpletron {
 			else
 				System.out.print(i + "0");
 			for (int n = 0; n < DIMEN; n++) {
-				System.out.print(" " + formatWord(memory[i*DIMEN + n]));
+				System.out.print(" " + memory[i*DIMEN + n]);
 			}
 			System.out.println();
 		}
 	}
 
-	//post: returns word in +wxyz or -wxyz format
+	//post: returns word in +vwxyz or -vwxyz format
 	private String formatWord(int word) {
 		String s = Math.abs(word) + "";
 		while (s.length() < ((MAX_WORD_SIZE+"").length()))
@@ -195,10 +229,10 @@ public class Simpletron {
 		return s;
 	}
 
-    //post: returns a two digit string with preceding 0's if necessary
-	private String formatCode(int code) {
+    //post: returns an n digit string with preceding 0's if necessary
+	private String formatCode(int code, int n) {
 		String s = code + "";
-		while (s.length() < 2)
+		while (s.length() < n)
 			s = "0" + s;
 		return s;
 	}
