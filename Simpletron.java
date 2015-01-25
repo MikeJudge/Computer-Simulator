@@ -1,20 +1,20 @@
 /**************************************************************************
 * This class runs machine level programs. The machine level programs      *
-* are written as a list of four digtit numbers with an operation code     *
-* corresponding to the first two digits of a four digit decimal number,   * 
-* and the last two digits corresponding to an operand.                    *
+* are written as a list of five digit numbers with an operation code     *
+* corresponding to the first two digits of a five digit decimal number,   * 
+* and the last three digits corresponding to an operand.                    *
 **************************************************************************/
 import java.util.Scanner;
 
 public class Simpletron {
-	private static final int MEMORY_SIZE = 1000;
-	private static final int MAX_WORD_SIZE = 9999;
-	private static final int MIN_WORD_SIZE = -9999;
+	private static final int MEMORY_SIZE   = 1000;
+	private static final int MAX_WORD_SIZE = 99999;
+	private static final int MIN_WORD_SIZE = -99999;
 
 	//operation code constants
-	private static final int READ    = 10;
-	private static final int WRITE   = 11;
-	private static final int NEWLINE = 12;
+	private static final int READ       = 10;
+	private static final int WRITE      = 11;
+	private static final int NEWLINE    = 12;
 
 	private static final int LOAD  = 20;
 	private static final int STORE = 21;
@@ -37,7 +37,7 @@ public class Simpletron {
 	private int instructionCounter;  //location in memory whose instruction is being performed now
 
 	private int operationCode;       //operation being currently performed, 1st two numbers of instructionRegister
-	private int operand;		     //memory location where operation is being operated on 2nd two numbers of instructionRegister
+	private int operand;		     //memory location where operation is being operated on last three of instructionRegister
 	private int instructionRegister; //full instruction word
 
 
@@ -78,8 +78,8 @@ public class Simpletron {
 				fatalError("*** program execution failed ***");
 
 			instructionRegister = memory[instructionCounter];
-			operationCode = instructionRegister / 100;
-			operand = instructionRegister % 100;
+			operationCode = instructionRegister / 1000;
+			operand = instructionRegister % 1000;
 
 			if (!isAccumulatorValid())
 				fatalError("*** Overflow occured ***");
@@ -155,16 +155,16 @@ public class Simpletron {
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + formatWord(accumulator));
-		System.out.println("instructionCounter" + "   " + "   " + formatCode(instructionCounter));
+		System.out.println("instructionCounter" + "   " + "    " + formatCode(instructionCounter));
 		System.out.println("instructionRegister" + "  " + formatWord(instructionRegister));
-		System.out.println("operationCode" + "        " + "   " + formatCode(operationCode));
-		System.out.println("operand" + "              " + "   " + formatCode(operand));
+		System.out.println("operationCode" + "        " + "    " + formatCode(operationCode));
+		System.out.println("operand" + "              " + "    " + formatCode(operand));
 		System.out.println("\n" + "MEMORY:");
 		System.out.print("   ");
 
 		final int DIMEN = 10;
 		for (int i = 0; i < DIMEN; i++) {
-			System.out.print("     " + i);
+			System.out.print("      " + i);
 		}
 		System.out.println();
 
@@ -184,7 +184,7 @@ public class Simpletron {
 
 	//post: returns word in +wxyz or -wxyz format
 	private String formatWord(int word) {
-		String s = word + "";
+		String s = Math.abs(word) + "";
 		while (s.length() < ((MAX_WORD_SIZE+"").length()))
 			s = "0" + s;
 		if (word >= 0)
@@ -213,7 +213,7 @@ public class Simpletron {
 
 	public static void main(String [] args) {
 		
-		final int SENTINAL = -99999;
+		final int SENTINAL = -999999;
 		Scanner input = new Scanner(System.in);
 		System.out.println("*** Welcome to Simpletron! ***");
 		System.out.println("*** Please enter your program one instruction  ***");
