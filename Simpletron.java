@@ -23,6 +23,7 @@ public class Simpletron {
 	private static final int DIVIDE    = 32;
 	private static final int MULTIPLY  = 33;
 	private static final int REMAINDER = 34;
+	private static final int POWER     = 35;
 
 	private static final int BRANCH     = 40;
 	private static final int BRANCHNEG  = 41;
@@ -115,9 +116,12 @@ public class Simpletron {
 				case MULTIPLY:    accumulator *= memory[operand];
 								  instructionCounter++;
 								  break;
-				case REMAINDER:   if (memory[operand] == 0)
+				case REMAINDER:   if (memory[operand] == 0) //can't divide by zero
 									 fatalError("*** attempt to divide by zero ***");
 								  accumulator %= memory[operand];
+								  instructionCounter++;
+								  break;
+				case POWER:       accumulator = (int)Math.pow(accumulator,memory[operand]);
 								  instructionCounter++;
 								  break;
 				case BRANCH:      instructionCounter = operand;
