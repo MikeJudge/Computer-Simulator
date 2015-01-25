@@ -18,10 +18,11 @@ public class Simpletron {
 	private static final int LOAD  = 20;
 	private static final int STORE = 21;
 
-	private static final int ADD      = 30;
-	private static final int SUBTRACT = 31;
-	private static final int DIVIDE   = 32;
-	private static final int MULTIPLY = 33;
+	private static final int ADD       = 30;
+	private static final int SUBTRACT  = 31;
+	private static final int DIVIDE    = 32;
+	private static final int MULTIPLY  = 33;
+	private static final int REMAINDER = 34;
 
 	private static final int BRANCH     = 40;
 	private static final int BRANCHNEG  = 41;
@@ -70,7 +71,7 @@ public class Simpletron {
 	public void executeProgram() {
 		Scanner input = new Scanner(System.in);
 		while (true) {
-			//case when branch jumps out of bounds
+			//case when branch jumps the program out of bounds
 			if (instructionCounter >= MEMORY_SIZE || instructionCounter < 0)
 				fatalError("*** program execution failed ***");
 
@@ -80,6 +81,9 @@ public class Simpletron {
 
 			if (!isAccumulatorValid())
 				fatalError("*** Overflow occured ***");
+
+			if (operand >= MEMORY_SIZE || operand < 0)
+				fatalError("*** operand index out of bounds ***");
 
 			switch (operationCode) {
 				//condense code branch, and branchneg are the only ops that don't instructioncounter++
@@ -109,6 +113,11 @@ public class Simpletron {
 						          instructionCounter++;
 						          break;
 				case MULTIPLY:    accumulator *= memory[operand];
+								  instructionCounter++;
+								  break;
+				case REMAINDER:   if (memory[operand] == 0)
+									 fatalError("*** attempt to divide by zero ***");
+								  accumulator %= memory[operand];
 								  instructionCounter++;
 								  break;
 				case BRANCH:      instructionCounter = operand;
@@ -209,7 +218,7 @@ public class Simpletron {
 		int word = 0;
 		int index = 0;
 		Simpletron test = new Simpletron();
-/*
+
 		while (true) {
 			if (index < 10)
 				System.out.print("0" + index + " ? ");
@@ -222,7 +231,7 @@ public class Simpletron {
 			test.storeWord(index++, word);
 		}
 
-*/
+
 		System.out.println("*** Program loading completed ***");
 		System.out.println("*** Program execution begins  ***");
 		test.executeProgram();
