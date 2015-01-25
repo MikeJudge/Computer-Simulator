@@ -1,7 +1,17 @@
+/**************************************************************************
+* This class runs machine level programs. The machine level programs      *
+* are written as a list of four digtit numbers with an operation code     *
+* corresponding to the first two digits of a four digit decimal number,   * 
+* and the last two digits corresponding to an operand.                    *
+**************************************************************************/
 import java.util.Scanner;
 
 public class Simpletron {
-//operation code constants
+	private static final int MEMORY_SIZE = 100;
+	private static final int MAX_WORD_SIZE = 9999;
+	private static final int MIN_WORD_SIZE = -9999;
+
+	//operation code constants
 	private static final int READ  = 10;
 	private static final int WRITE = 11;
 
@@ -19,7 +29,7 @@ public class Simpletron {
 	private static final int HALT       = 43;
 
 
-	private int[] memory;
+	private int[] memory;			 //program is stored here
 	private int accumulator;
 	private int instructionCounter;  //location in memory whose instruction is being performed now
 
@@ -29,42 +39,52 @@ public class Simpletron {
 
 
 	public Simpletron() {
-		memory = new int[100];
-		accumulator = 0;
-		instructionCounter = 0;
-		operationCode = 0;
-		operand = 0;
+		memory = new int[MEMORY_SIZE];
+		accumulator 	    = 0;
+		instructionCounter  = 0;
+		operationCode       = 0;
+		operand             = 0;
 		instructionRegister = 0;
 	}
 
 	//pre:  index, and word are in range
 	//post: word is stored in memory
-	public boolean storeWord(int index, int word) {
-		if (word > 9999 || word < -9999) {
-			System.out.println("invalid word");
-			return false;
+	public void storeWord(int index, int word) {
+		if (word > MAX_WORD_SIZE || word < MIN_WORD_SIZE) {
+			fatalError("*** overflow occured ***");
 		}
-		if (index > 99 || index < 0) {
-			System.out.println("index not in range");
-			return false;
+		if (index > (MEMORY_SIZE-1) || index < 0) {
+			fatalError("*** index out of bounds ***");
 		}
 
 		memory[index] = word;
+	}
+
+	//returns false if the accumulator has overflowed the max or min WORD_SIZE
+	private boolean isAccumulatorValid() {
+		if (accumulator > MAX_WORD_SIZE || accumulator < MIN_WORD_SIZE)
+			return false;
 		return true;
 	}
 
 	public void executeProgram() {
 		Scanner input = new Scanner(System.in);
-
 		while (true) {
+			//case when branch jumps out of bounds
+			if (instructionCounter >= MEMORY_SIZE || instructionCounter < 0)
+				fatalError("*** program execution failed ***");
+
 			instructionRegister = memory[instructionCounter];
 			operationCode = instructionRegister / 100;
 			operand = instructionRegister % 100;
 
+			if (!isAccumulatorValid())
+				fatalError("*** Overflow occured ***");
+
 			switch (operationCode) {
 				//condense code branch, and branchneg are the only ops that don't instructioncounter++
 				case READ:        System.out.print("Enter an integer: ");
-							      memory[operand] = input.nextInt();
+							      storeWord(operand, input.nextInt());
 							      instructionCounter++;
 							      break;
 				case WRITE:       System.out.println(memory[operand]);
@@ -73,7 +93,7 @@ public class Simpletron {
 				case LOAD:        accumulator = memory[operand];
 							      instructionCounter++;
 							      break;
-				case STORE:       memory[operand] = accumulator;
+				case STORE:       storeWord(operand, accumulator);
 							      instructionCounter++;
 							      accumulator = 0;
 							      break;
@@ -83,7 +103,9 @@ public class Simpletron {
 				case SUBTRACT:    accumulator -= memory[operand];
 								  instructionCounter++;
 								  break;
-				case DIVIDE:      accumulator /= memory[operand];     ///error checking here
+				case DIVIDE:      if (memory[operand] == 0) //can't divide by zero
+        					      	 fatalError("*** attempt to divide by zero ***");
+								  accumulator /= memory[operand];     
 						          instructionCounter++;
 						          break;
 				case MULTIPLY:    accumulator *= memory[operand];
@@ -101,15 +123,18 @@ public class Simpletron {
 								  else
 								  	  instructionCounter++;
 								  break;
-				case HALT:      System.out.println("*** Simpletron execution terminated ***");
-							    return;
+				case HALT:        System.out.println("*** Simpletron execution terminated ***");
+							      return;
+				//invalid operation code
+				default:		  fatalError("*** Invalid operation code ***");
 
 			}
 
 		}
 	}
 
-	//post: all of the variables are printed off to the screen
+
+	//post: all of the variables are printed to the screen
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + formatWord(accumulator));
@@ -151,8 +176,16 @@ public class Simpletron {
 		return s;
 	}
 
+	private void fatalError(String errorMessage) {
+		System.out.println(errorMessage);
+		System.out.println("*** Simpletron execution abnormally terminated ***");
+		dumpMemory();
+		System.exit(-1);
+	}
+
 
 	public static void main(String [] args) {
+		
 		final int SENTINAL = -99999;
 		Scanner input = new Scanner(System.in);
 		System.out.println("*** Welcome to Simpletron! ***");
@@ -176,14 +209,11 @@ public class Simpletron {
 			word = input.nextInt();
 			if (word == SENTINAL)
 				break;
-			if (test.storeWord(index, word)) 
-				index++;
+			test.storeWord(index, word);
 		}
 
 		System.out.println("*** Program loading completed ***");
 		System.out.println("*** Program execution begins  ***");
-		test.dumpMemory();
-		System.out.println();
 		test.executeProgram();
 		
 		
