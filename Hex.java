@@ -17,10 +17,15 @@ public class Hex {
 		value = decToHex(num);
 	}
 
+	public void setValue(String num) {
+		value = num;
+	}
+
 	public int length() {
 		return value.length();
 	}
 
+	//returns String with size n, prepend zeros if n > length of this
 	public String getString(int n) {
 		if (n < length())
 			return value;
@@ -116,15 +121,19 @@ public class Hex {
 
 	}
 
+	public boolean equals(Hex hex) {
+		return this.value.equals(hex.getValue());
+	}
+
 
 
 	public static void main(String [] args) {
 		Hex test = new Hex(10);
-		Hex test1 = new Hex(10);
+		Hex test1 = new Hex(-10);
 		Hex test3 = subtract(test,test1);
 		System.out.println(test.getString(6));
 		System.out.println(test3.toLong());
-		System.out.println(test.compareTo(test1));
+		System.out.println(test.equals(test1));
 
 	}
 
