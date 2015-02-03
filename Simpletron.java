@@ -104,7 +104,7 @@ public class Simpletron {
 		return true;
 	}
 
-	private boolean instructionCounterValid() {
+	private boolean isInstructionCounterValid() {
 		int i = instructionCounter.toInt();
 		if (i > MEMORY_SIZE-1 || i < 0)
 			return false;
@@ -115,7 +115,7 @@ public class Simpletron {
 		Scanner input = new Scanner(System.in);
 		while (true) {
 			//case when branch instruction jumps the program out of bounds
-			if (!instructionCounterValid())
+			if (!isInstructionCounterValid())
 				fatalError("*** program execution failed ***");
 
 			instructionRegister.setValue(getWord(instructionCounter));
