@@ -33,12 +33,12 @@ public class Simpletron {
 	private static final Hex HALT       = new Hex(43);
 
 
-	private Hex[] memory;		 //program is stored here
+	private Hex[] memory;		      //program is stored here
 	private Hex accumulator;
-	private Hex instructionCounter;  //location in memory whose instruction is being performed now
+	private Hex instructionCounter;   //location in memory whose instruction is being performed now
 
 	private Hex operationCode;        //operation being currently performed, 1st two digits of instructionRegister
-	private Hex operand;		         //memory location where operation is being operated on last three of instructionRegister
+	private Hex operand;		      //memory location where operation is being operated on last three of instructionRegister
 	private Hex instructionRegister;  //full instruction word
 
 
@@ -65,9 +65,10 @@ public class Simpletron {
 			fatalError("*** index out of bounds ***");
 		}
 
-		memory[i] = word;
+		memory[i].setValue(word);
 	}
 
+//this function is for storing words in decimal format, this function will eventually not be needed
 	public void storeWord(int index, int word) {
 		String part1, part2;
 		part1 = new Hex(word / 1000).getString(3);
@@ -81,7 +82,7 @@ public class Simpletron {
 		if (i > (MEMORY_SIZE - 1) || i < 0)
 			fatalError("*** index out of bounds ***");
 
-		Hex word = memory[i];
+		Hex word = new Hex(memory[i]);
 
 		if (word.compareTo(MAX_WORD) > 0 || word.compareTo(MIN_WORD) < 0) {
 			fatalError("*** overflow occured ***");
@@ -113,7 +114,7 @@ public class Simpletron {
 	public void executeProgram() {
 		Scanner input = new Scanner(System.in);
 		while (true) {
-			//case when branch jumps the program out of bounds
+			//case when branch instruction jumps the program out of bounds
 			if (!instructionCounterValid())
 				fatalError("*** program execution failed ***");
 
@@ -126,7 +127,6 @@ public class Simpletron {
 
 			if (!isOperandValid())
 				fatalError("*** operand index out of bounds ***");
-
 
 
 			if (operationCode.equals(READ)) 
@@ -144,7 +144,7 @@ public class Simpletron {
 			} 
 			else if (operationCode.equals(LOAD)) 
 			{
-				accumulator = getWord(operand);
+				accumulator.setValue(getWord(operand));
 			} 
 			else if (operationCode.equals(STORE)) 
 			{
@@ -218,10 +218,10 @@ public class Simpletron {
 	public void dumpMemory() {
 		System.out.println("REGISTERS:");
 		System.out.println("accumulator" + "          " + accumulator.getString(6));
-		System.out.println("instructionCounter" + "   " + "  " + instructionCounter.getString(4));
+		System.out.println("instructionCounter" + "   " + "   " + instructionCounter.getString(4).substring(1));
 		System.out.println("instructionRegister" + "  " + instructionRegister.getString(6));
-		System.out.println("operationCode" + "        " + "   " + operationCode.getString(3));
-		System.out.println("operand" + "              " + "  " +  operand.getString(4));
+		System.out.println("operationCode" + "        " + "    " + operationCode.getString(3).substring(1));
+		System.out.println("operand" + "              " + "   " +  operand.getString(4).substring(1));
 		System.out.println("\n" + "MEMORY:");
 		System.out.print("   ");
 
@@ -244,28 +244,7 @@ public class Simpletron {
 			System.out.println();
 		}
 	}
-/*
-	//post: returns word in +vwxyz or -vwxyz format
-	private String formatWord(int word) {
-		String s = Math.abs(word) + "";
-		while (s.length() < ((MAX_WORD_SIZE+"").length()))
-			s = "0" + s;
-		if (word >= 0)
-			s = "+" + s;
-		else
-			s = "-" + s;
 
-		return s;
-	}
-
-    //post: returns an n digit string with preceding 0's if necessary
-	private String formatCode(int code, int n) {
-		String s = code + "";
-		while (s.length() < n)
-			s = "0" + s;
-		return s;
-	}
-*/
 	private void fatalError(String errorMessage) {
 		System.out.println(errorMessage);
 		System.out.println("*** Simpletron execution abnormally terminated ***");
