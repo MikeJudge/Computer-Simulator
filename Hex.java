@@ -8,11 +8,13 @@ public class Hex {
 	public Hex(long num) {
 		value = decToHex(num);
 	}
-	////////////////////////////////
-/////////////error checking //////////////
-	////////////////////////////////
+
 	public Hex(String num) {
-		value = num;
+		setValue(num);
+	}
+
+	public Hex(Hex hex) {
+		setValue(hex.getValue());
 	}
 
 	public String getValue() {
@@ -24,11 +26,24 @@ public class Hex {
 	}
 
 	public void setValue(String num) {
+		if (num.charAt(0) != '+' && num.charAt(0) != '-') {
+			setValue(0);
+			return;
+		}
+
+		for (int i = 1; i < num.length(); i++) {
+			char c = num.charAt(i);
+			if (!(c <= '9' && c >= '0') && !(c >= 'A' && c <= 'F')) {
+				setValue(0);
+				return;
+			}
+		}
+
 		value = num;
 	}
 
 	public void setValue(Hex hex) {
-		value = new String(hex.getValue());
+		value = hex.getValue();
 	}
 
 	public int length() {
@@ -133,9 +148,9 @@ public class Hex {
 
 	}
 
-	//returns > 0 if this is greater
-	//returns < 0 if this is smaller
-	//returns = 0 if equal
+	//returns +1 if this is greater
+	//returns -1 if this is smaller
+	//returns  0 if equal
 	public int compareTo(Hex hex) {
 		long num1 = toLong();
 		long num2 = hex.toLong();
@@ -150,14 +165,17 @@ public class Hex {
 	}
 
 	public boolean equals(Hex hex) {
-		return this.value.equals(hex.getValue());
+		long num1 = toLong();
+		long num2 = hex.toLong();
+
+		return (num1 == num2);
 	}
 
 
 
 	public static void main(String [] args) {
 
-		Hex test = new Hex("+AA123");
+		Hex test = new Hex("+A123");
 		Hex test1 = new Hex("+1000");
 
 		System.out.println(test.getString(6));
