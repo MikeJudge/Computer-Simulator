@@ -8,6 +8,12 @@ public class Hex {
 	public Hex(long num) {
 		value = decToHex(num);
 	}
+	////////////////////////////////
+/////////////error checking //////////////
+	////////////////////////////////
+	public Hex(String num) {
+		value = num;
+	}
 
 	public String getValue() {
 		return value;
@@ -19,6 +25,10 @@ public class Hex {
 
 	public void setValue(String num) {
 		value = num;
+	}
+
+	public void setValue(Hex hex) {
+		value = new String(hex.getValue());
 	}
 
 	public int length() {
@@ -61,6 +71,24 @@ public class Hex {
 				num += (long)Math.pow(16, n) * (c - '0');
 			else
 				num += (long)Math.pow(16, n) * (c - 'A' + 10);
+			n++;
+		}
+		if (value.charAt(0) == '-')
+			num *= -1;
+
+		return num;
+	}
+
+	public int toInt() {
+		int num = 0;
+		int n = 0;
+		char c;
+		for (int i = length() - 1; i > 0; i--) {
+			c = value.charAt(i);
+			if (c >= '0' && c <= '9')
+				num += (int)Math.pow(16, n) * (c - '0');
+			else
+				num += (int)Math.pow(16, n) * (c - 'A' + 10);
 			n++;
 		}
 		if (value.charAt(0) == '-')
@@ -128,12 +156,15 @@ public class Hex {
 
 
 	public static void main(String [] args) {
-		Hex test = new Hex(10);
-		Hex test1 = new Hex(-10);
-		Hex test3 = subtract(test,test1);
+
+		Hex test = new Hex("+AA123");
+		Hex test1 = new Hex("+1000");
+
 		System.out.println(test.getString(6));
-		System.out.println(test3.toLong());
-		System.out.println(test.equals(test1));
+		System.out.println(test1.getString(6));
+
+		System.out.println(divide(test,test1).getValue());
+
 
 	}
 
