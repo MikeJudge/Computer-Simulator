@@ -1,7 +1,7 @@
 /**************************************************************************
 * This class runs machine level programs. The machine level programs      *
-* are written as a list of five digit numbers with an operation code      *
-* corresponding to the first two digits of a five digit decimal number,   * 
+* are written as a list of five digit hex numbers with an operation code  *
+* corresponding to the first two digits of a five digit hex number,       * 
 * and the last three digits corresponding to an operand.                  *
 **************************************************************************/
 import java.util.Scanner;
