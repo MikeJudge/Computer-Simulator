@@ -16,6 +16,7 @@ public class Simpletron {
 	private static final Hex READ       = new Hex(10);
 	private static final Hex WRITE      = new Hex(11);
 	private static final Hex NEWLINE    = new Hex(12);
+	private static final Hex READSTRING = new Hex(13);
 
 	private static final Hex LOAD       = new Hex(20);
 	private static final Hex STORE      = new Hex(21);
@@ -68,13 +69,46 @@ public class Simpletron {
 		memory[i].setValue(word);
 	}
 
-//this function is for storing words in decimal format, this function will eventually not be needed
+//this function is for storing words inputted in decimal format
 	public void storeWord(int index, int word) {
 		String part1, part2;
 		part1 = new Hex(word / 1000).getString(3);
 		part2 = new Hex(word % 1000).getString(4);
 
 		storeWord(new Hex(index), new Hex(part1 + part2.substring(1)));
+	}
+
+	/*stores a string in memory. It does this by storing each charcter of the string as 
+	  a half word represented in Hex. Each word in memory can hold two characters. The 
+	  first index of the string in memory holds the length of the string followed by
+	  string.length half words in succeeding indices.
+	*/
+	private void storeString(Hex index, String input) {
+		//if length = 0 store the length of 0 with no characters
+		if (input.length() == 0) {
+			storeWord(index, new Hex("+00000"));
+			return;
+		}
+
+		//store the length with the first character in the first index
+		storeWord(index, new Hex(new Hex(input.length()).getString(3) + "0" + getHalfWord(input.charAt(0))));
+
+		int n = 1;
+		int i = index.toInt() + 1;
+
+		for (; n + 1 < input.length(); n+=2, i++) {
+			storeWord(new Hex(i), new Hex("+" + getHalfWord(input.charAt(n))+ "0" + getHalfWord(input.charAt(n+1))));
+		}
+
+		//if the length is even, store the last character in its own word with no second half-word
+		if (n < input.length())
+			storeWord(new Hex(i), new Hex("+" + getHalfWord(input.charAt(n)) + "000"));
+	}
+
+
+	//returns a two digit unsigned hex representation of a character
+	private String getHalfWord(char c) {
+		return new Hex((int)c).getString(3).substring(1);
 	}
 
 	private Hex getWord(Hex index) {
@@ -142,6 +176,11 @@ public class Simpletron {
 			{
 				System.out.println();
 			} 
+			else if (operationCode.equals(READSTRING))
+			{
+				System.out.print("Enter a string: ");
+				storeString(operand, input.next());
+			}
 			else if (operationCode.equals(LOAD)) 
 			{
 				accumulator.setValue(getWord(operand));
