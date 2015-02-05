@@ -112,6 +112,11 @@ public class Simpletron {
 		return new Hex((int)c).getString(3).substring(1);
 	}
 
+    //prints a string represented by half words. the operand is the index
+    //of the first data for the string. It contains two half words-
+    //the length of the string and the first character of the string
+    //if there is one. string.length half words follow in the following
+    //indices.
 	private void printString(Hex operand) {
 		int [] arr = getHalfWords(operand);
 		int length = arr[0];
@@ -133,8 +138,8 @@ public class Simpletron {
 	private int[] getHalfWords(Hex operand) {
 		Hex word = getWord(operand);
 		int [] arr = new int[2];
-		arr[0] = Hex.divide(word, new Hex("+1000")).toInt();
-		arr[1] = Hex.mod(word, new Hex("+100")).toInt();
+		arr[0] = Hex.divide(word, new Hex("+1000")).toInt(); //first half word
+		arr[1] = Hex.mod(word, new Hex("+100")).toInt();     //last half word
 		return arr;
 	}
 
