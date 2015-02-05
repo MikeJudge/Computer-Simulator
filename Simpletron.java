@@ -13,25 +13,26 @@ public class Simpletron {
 	private static final Hex MIN_WORD    = new Hex("-FFFFF");
 
 	//operation code constants
-	private static final Hex READ       = new Hex(10);
-	private static final Hex WRITE      = new Hex(11);
-	private static final Hex NEWLINE    = new Hex(12);
-	private static final Hex READSTRING = new Hex(13);
+	private static final Hex READ        = new Hex(10);
+	private static final Hex WRITE       = new Hex(11);
+	private static final Hex NEWLINE     = new Hex(12);
+	private static final Hex READSTRING  = new Hex(13);
+	private static final Hex WRITESTRING = new Hex(14);
 
-	private static final Hex LOAD       = new Hex(20);
-	private static final Hex STORE      = new Hex(21);
+	private static final Hex LOAD        = new Hex(20);
+	private static final Hex STORE       = new Hex(21);
 
-	private static final Hex ADD        = new Hex(30);
-	private static final Hex SUBTRACT   = new Hex(31);
-	private static final Hex DIVIDE     = new Hex(32);
-	private static final Hex MULTIPLY   = new Hex(33);
-	private static final Hex REMAINDER  = new Hex(34);
-	private static final Hex POWER      = new Hex(35);
+	private static final Hex ADD         = new Hex(30);
+	private static final Hex SUBTRACT    = new Hex(31);
+	private static final Hex DIVIDE      = new Hex(32);
+	private static final Hex MULTIPLY    = new Hex(33);
+	private static final Hex REMAINDER   = new Hex(34);
+	private static final Hex POWER       = new Hex(35);
 
-	private static final Hex BRANCH     = new Hex(40);
-	private static final Hex BRANCHNEG  = new Hex(41);
-	private static final Hex BRANCHZERO = new Hex(42);
-	private static final Hex HALT       = new Hex(43);
+	private static final Hex BRANCH      = new Hex(40);
+	private static final Hex BRANCHNEG   = new Hex(41);
+	private static final Hex BRANCHZERO  = new Hex(42);
+	private static final Hex HALT        = new Hex(43);
 
 
 	private Hex[] memory;		      //program is stored here
@@ -91,24 +92,50 @@ public class Simpletron {
 		}
 
 		//store the length with the first character in the first index
-		storeWord(index, new Hex(new Hex(input.length()).getString(3) + "0" + getHalfWord(input.charAt(0))));
+		storeWord(index, new Hex(new Hex(input.length()).getString(3) + "0" + toHalfWord(input.charAt(0))));
 
 		int n = 1;
 		int i = index.toInt() + 1;
 
 		for (; n + 1 < input.length(); n+=2, i++) {
-			storeWord(new Hex(i), new Hex("+" + getHalfWord(input.charAt(n))+ "0" + getHalfWord(input.charAt(n+1))));
+			storeWord(new Hex(i), new Hex("+" + toHalfWord(input.charAt(n))+ "0" + toHalfWord(input.charAt(n+1))));
 		}
 
 		//if the length is even, store the last character in its own word with no second half-word
 		if (n < input.length())
-			storeWord(new Hex(i), new Hex("+" + getHalfWord(input.charAt(n)) + "000"));
+			storeWord(new Hex(i), new Hex("+" + toHalfWord(input.charAt(n)) + "000"));
 	}
 
 
 	//returns a two digit unsigned hex representation of a character
-	private String getHalfWord(char c) {
+	private String toHalfWord(char c) {
 		return new Hex((int)c).getString(3).substring(1);
+	}
+
+	private void printString(Hex operand) {
+		int [] arr = getHalfWords(operand);
+		int length = arr[0];
+		if (arr[0] == 0)
+			return;
+
+		System.out.print((char)arr[1]);
+
+		int i = 1;
+		for (int n = 1; n < length; n+=2) {
+			arr = getHalfWords(Hex.add(operand, new Hex(i)));
+			System.out.print((char)arr[0]);
+			if (arr[1] != 0)
+				System.out.print((char)arr[1]);
+			i++;
+		}
+	}
+
+	private int[] getHalfWords(Hex operand) {
+		Hex word = getWord(operand);
+		int [] arr = new int[2];
+		arr[0] = Hex.divide(word, new Hex("+1000")).toInt();
+		arr[1] = Hex.mod(word, new Hex("+100")).toInt();
+		return arr;
 	}
 
 	private Hex getWord(Hex index) {
@@ -180,6 +207,10 @@ public class Simpletron {
 			{
 				System.out.print("Enter a string: ");
 				storeString(operand, input.next());
+			}
+			else if (operationCode.equals(WRITESTRING))
+			{
+				printString(operand);
 			}
 			else if (operationCode.equals(LOAD)) 
 			{
