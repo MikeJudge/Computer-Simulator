@@ -148,7 +148,7 @@ public class Hex {
 		if (i == -1)
 			return (double)toInt();
 
-		double num = Integer.parseInt(value.substring(1, i));
+		double num = Integer.parseInt(value.substring(1, i), 16);
 		//gets the integer portion from the hex value into the num and ignore sign
 		//reason: function will add the unsigned representation of value after decimal
 		//        point, and get the final signed representation in the end
@@ -255,10 +255,10 @@ public class Hex {
 
 
 	public static void main(String [] args) {
-		Hex test = new Hex(-4.5);
-		Hex test2 = new Hex(5);
+		Hex test = new Hex("-FFFFF");
+		Hex test2 = new Hex(12.567);
 
-		System.out.println(test.getValue());
+		System.out.println(test.toDouble());
 		System.out.println(test2.getValue());
 		System.out.println(Hex.add(test,test2, Hex.DOUBLE).toDouble());
 		//System.out.println(Math.PI + Math.PI);
