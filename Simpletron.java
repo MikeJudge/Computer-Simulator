@@ -13,26 +13,37 @@ public class Simpletron {
 	private static final Hex MIN_WORD    = new Hex("-FFFFF");
 
 	//operation code constants
-	private static final Hex READ        = new Hex(10);
-	private static final Hex WRITE       = new Hex(11);
-	private static final Hex NEWLINE     = new Hex(12);
-	private static final Hex READSTRING  = new Hex(13);
-	private static final Hex WRITESTRING = new Hex(14);
+	private static final Hex READ_INT           = new Hex(10);
+	private static final Hex WRITE_INT          = new Hex(11);
+	private static final Hex NEWLINE            = new Hex(12);
+	private static final Hex READSTRING         = new Hex(13);
+	private static final Hex WRITESTRING        = new Hex(14);
+	private static final Hex READ_DOUBLE        = new Hex(15);
+	private static final Hex WRITE_DOUBLE       = new Hex(16);
 
-	private static final Hex LOAD        = new Hex(20);
-	private static final Hex STORE       = new Hex(21);
+	private static final Hex LOAD               = new Hex(20);
+	private static final Hex STORE              = new Hex(21);
 
-	private static final Hex ADD         = new Hex(30);
-	private static final Hex SUBTRACT    = new Hex(31);
-	private static final Hex DIVIDE      = new Hex(32);
-	private static final Hex MULTIPLY    = new Hex(33);
-	private static final Hex REMAINDER   = new Hex(34);
-	private static final Hex POWER       = new Hex(35);
+    private static final Hex ADD_DOUBLE         = new Hex(24);
+	private static final Hex SUBTRACT_DOUBLE    = new Hex(25);
+	private static final Hex DIVIDE_DOUBLE      = new Hex(26);
+	private static final Hex MULTIPLY_DOUBLE    = new Hex(27);
+	private static final Hex REMAINDER_DOUBLE   = new Hex(28);
+	private static final Hex POWER_DOUBLE       = new Hex(29);
 
-	private static final Hex BRANCH      = new Hex(40);
-	private static final Hex BRANCHNEG   = new Hex(41);
-	private static final Hex BRANCHZERO  = new Hex(42);
-	private static final Hex HALT        = new Hex(43);
+	private static final Hex ADD_INT            = new Hex(30);
+	private static final Hex SUBTRACT_INT       = new Hex(31);
+	private static final Hex DIVIDE_INT         = new Hex(32);
+	private static final Hex MULTIPLY_INT       = new Hex(33);
+	private static final Hex REMAINDER_INT      = new Hex(34);
+	private static final Hex POWER_INT          = new Hex(35);
+
+	private static final Hex BRANCH             = new Hex(40);
+	private static final Hex BRANCHNEG          = new Hex(41);
+	private static final Hex BRANCHZERO         = new Hex(42);
+	private static final Hex HALT               = new Hex(43);
+
+	
 
 
 	private Hex[] memory;		      //program is stored here
@@ -195,14 +206,23 @@ public class Simpletron {
 				fatalError("*** operand index out of bounds ***");
 
 
-			if (operationCode.equals(READ)) 
+			if (operationCode.equals(READ_INT)) 
 			{
 				System.out.print("Enter an integer: ");
 				storeWord(operand, new Hex(input.nextInt()));
 			} 
-			else if (operationCode.equals(WRITE)) 
+			else if (operationCode.equals(READ_DOUBLE)) 
+			{
+				System.out.print("Enter a float: ");
+				storeWord(operand, new Hex(input.nextDouble()));
+			}
+			else if (operationCode.equals(WRITE_INT)) 
 			{
 				System.out.print(getWord(operand).toInt());
+			} 
+			else if (operationCode.equals(WRITE_DOUBLE)) 
+			{
+				System.out.print(getWord(operand).toDouble());
 			} 
 			else if (operationCode.equals(NEWLINE)) 
 			{
@@ -217,6 +237,8 @@ public class Simpletron {
 			{
 				printString(operand);
 			}
+
+
 			else if (operationCode.equals(LOAD)) 
 			{
 				accumulator.setValue(getWord(operand));
@@ -226,34 +248,71 @@ public class Simpletron {
 				storeWord(operand, accumulator);
 				accumulator.setValue(0);
 			} 
-			else if (operationCode.equals(ADD)) 
+
+
+			else if (operationCode.equals(ADD_INT)) 
 			{
 				accumulator.setValue(Hex.add(accumulator, getWord(operand), Hex.INTEGER));
+			}
+			else if (operationCode.equals(ADD_DOUBLE))
+			{
+				accumulator.setValue(Hex.add(accumulator, getWord(operand), Hex.DOUBLE));
 			} 
-			else if (operationCode.equals(SUBTRACT)) 
+
+			else if (operationCode.equals(SUBTRACT_INT)) 
 			{
 				accumulator.setValue(Hex.subtract(accumulator, getWord(operand), Hex.INTEGER));
 			} 
-			else if (operationCode.equals(DIVIDE)) 
+			else if (operationCode.equals(SUBTRACT_DOUBLE)) 
+			{
+				accumulator.setValue(Hex.subtract(accumulator, getWord(operand), Hex.DOUBLE));
+			} 
+
+			else if (operationCode.equals(DIVIDE_INT)) 
 			{
 				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
         			fatalError("*** attempt to divide by zero ***");
 				accumulator.setValue(Hex.divide(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
-			else if (operationCode.equals(MULTIPLY)) 
+			else if (operationCode.equals(DIVIDE_DOUBLE)) 
+			{
+				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
+        			fatalError("*** attempt to divide by zero ***");
+				accumulator.setValue(Hex.divide(accumulator, getWord(operand), Hex.DOUBLE)); 
+			} 
+
+			else if (operationCode.equals(MULTIPLY_INT)) 
 			{
 				accumulator.setValue(Hex.multiply(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
-			else if (operationCode.equals(REMAINDER)) 
+			else if (operationCode.equals(MULTIPLY_DOUBLE)) 
+			{
+				accumulator.setValue(Hex.multiply(accumulator, getWord(operand), Hex.DOUBLE)); 
+			} 
+
+			else if (operationCode.equals(REMAINDER_INT)) 
 			{
 				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
 					fatalError("*** attempt to divide by zero ***");
 				accumulator.setValue(Hex.mod(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
-			else if (operationCode.equals(POWER)) 
+			else if (operationCode.equals(REMAINDER_DOUBLE)) 
+			{
+				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
+					fatalError("*** attempt to divide by zero ***");
+				accumulator.setValue(Hex.mod(accumulator, getWord(operand), Hex.DOUBLE)); 
+			} 
+
+			else if (operationCode.equals(POWER_INT)) 
 			{
 				accumulator.setValue(Hex.exponent(accumulator, getWord(operand), Hex.INTEGER));
 			} 
+			else if (operationCode.equals(POWER_DOUBLE)) 
+			{
+				accumulator.setValue(Hex.exponent(accumulator, getWord(operand), Hex.DOUBLE));
+			} 
+
+
 			else if (operationCode.equals(BRANCH)) 
 			{
 			  	instructionCounter.setValue(operand);
