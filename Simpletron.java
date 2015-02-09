@@ -91,7 +91,7 @@ public class Simpletron {
 			return;
 		}
 
-		//store the length with the first character in the first index
+		//store the length with the first character in the first index of the string
 		storeWord(index, new Hex(new Hex(input.length()).getString(3) + "0" + toHalfWord(input.charAt(0))));
 
 		int n = 1;
@@ -127,7 +127,7 @@ public class Simpletron {
 
 		int i = 1;
 		for (int n = 1; n < length; n+=2) {
-			arr = getHalfWords(Hex.add(operand, new Hex(i)));
+			arr = getHalfWords(Hex.add(operand, new Hex(i), Hex.INTEGER));
 			System.out.print((char)arr[0]);
 			if (arr[1] != 0)
 				System.out.print((char)arr[1]);
@@ -138,8 +138,8 @@ public class Simpletron {
 	private int[] getHalfWords(Hex operand) {
 		Hex word = getWord(operand);
 		int [] arr = new int[2];
-		arr[0] = Hex.divide(word, new Hex("+1000")).toInt(); //first half word
-		arr[1] = Hex.mod(word, new Hex("+100")).toInt();     //last half word
+		arr[0] = Hex.divide(word, new Hex("+1000"), Hex.INTEGER).toInt(); //first half word
+		arr[1] = Hex.mod(word, new Hex("+100"), Hex.INTEGER).toInt();     //last half word
 		return arr;
 	}
 
@@ -185,8 +185,8 @@ public class Simpletron {
 				fatalError("*** program execution failed ***");
 
 			instructionRegister.setValue(getWord(instructionCounter));
-			operationCode.setValue(Hex.divide(instructionRegister, new Hex("+1000")));
-			operand.setValue(Hex.mod(instructionRegister, new Hex("+1000")));
+			operationCode.setValue(Hex.divide(instructionRegister, new Hex("+1000"), Hex.INTEGER));
+			operand.setValue(Hex.mod(instructionRegister, new Hex("+1000"), Hex.INTEGER));
 
 			if (!isAccumulatorValid())
 				fatalError("*** Overflow occured ***");
@@ -198,11 +198,11 @@ public class Simpletron {
 			if (operationCode.equals(READ)) 
 			{
 				System.out.print("Enter an integer: ");
-				storeWord(operand, new Hex(input.nextLong()));
+				storeWord(operand, new Hex(input.nextInt()));
 			} 
 			else if (operationCode.equals(WRITE)) 
 			{
-				System.out.print(getWord(operand).toLong());
+				System.out.print(getWord(operand).toInt());
 			} 
 			else if (operationCode.equals(NEWLINE)) 
 			{
@@ -228,32 +228,32 @@ public class Simpletron {
 			} 
 			else if (operationCode.equals(ADD)) 
 			{
-				accumulator.setValue(Hex.add(accumulator, getWord(operand)));
+				accumulator.setValue(Hex.add(accumulator, getWord(operand), Hex.INTEGER));
 			} 
 			else if (operationCode.equals(SUBTRACT)) 
 			{
-				accumulator.setValue(Hex.subtract(accumulator, getWord(operand)));
+				accumulator.setValue(Hex.subtract(accumulator, getWord(operand), Hex.INTEGER));
 			} 
 			else if (operationCode.equals(DIVIDE)) 
 			{
 				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
         			fatalError("*** attempt to divide by zero ***");
-				accumulator.setValue(Hex.divide(accumulator, getWord(operand))); 
+				accumulator.setValue(Hex.divide(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
 			else if (operationCode.equals(MULTIPLY)) 
 			{
-				accumulator.setValue(Hex.multiply(accumulator, getWord(operand))); 
+				accumulator.setValue(Hex.multiply(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
 			else if (operationCode.equals(REMAINDER)) 
 			{
 				if (getWord(operand).equals(new Hex(0))) //can't divide by zero
 					fatalError("*** attempt to divide by zero ***");
-				accumulator.setValue(Hex.mod(accumulator, getWord(operand))); 
+				accumulator.setValue(Hex.mod(accumulator, getWord(operand), Hex.INTEGER)); 
 			} 
 			else if (operationCode.equals(POWER)) 
 			{
-				accumulator.setValue(Hex.exponent(accumulator, getWord(operand).toInt()));
-			} /////////////modify this to work with longs
+				accumulator.setValue(Hex.exponent(accumulator, getWord(operand), Hex.INTEGER));
+			} 
 			else if (operationCode.equals(BRANCH)) 
 			{
 			  	instructionCounter.setValue(operand);
@@ -263,14 +263,14 @@ public class Simpletron {
 		    	if (accumulator.compareTo(new Hex(0)) < 0) 
 					instructionCounter.setValue(operand);
 				else
-					instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1)));
+					instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1), Hex.INTEGER));
 		    } 
 		    else if (operationCode.equals(BRANCHZERO)) 
 		    {
 		    	if (accumulator.equals(new Hex(0))) 
 					instructionCounter.setValue(operand);
 				else
-					instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1)));
+					instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1), Hex.INTEGER));
 		    } 
 		    else if (operationCode.equals(HALT)) 
 		    {
@@ -283,7 +283,7 @@ public class Simpletron {
 		    }
 
 		    if (operationCode.compareTo(BRANCH) < 0)
-		    	instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1)));
+		    	instructionCounter.setValue(Hex.add(instructionCounter, new Hex(1), Hex.INTEGER));
 
 		}
 	}
