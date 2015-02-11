@@ -6,6 +6,8 @@
 **************************************************************************/
 import java.util.Scanner;
 import java.util.Arrays;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Simpletron {
 	private static final int MEMORY_SIZE = 1000;
@@ -43,8 +45,6 @@ public class Simpletron {
 	private static final Hex BRANCHZERO         = new Hex(42);
 	private static final Hex HALT               = new Hex(43);
 
-	
-
 
 	private Hex[] memory;		      //program is stored here
 	private Hex accumulator;
@@ -64,6 +64,31 @@ public class Simpletron {
 		operationCode       = new Hex();
 		operand             = new Hex();
 		instructionRegister = new Hex();
+	}
+
+
+	//loads a machine level program into memory
+	public void loadProgram(String fileName) {
+		int index = 0;
+		try {
+			FileReader inFile = new FileReader(fileName);
+			char c;
+			StringBuilder s = new StringBuilder();
+			while (inFile.ready()) {
+				c = (char)inFile.read();
+				if (c == '\n') {
+					storeWord(index++, Integer.parseInt(s.toString()));
+					s.delete(0, s.length());
+				} else {
+					s.append(c);
+				}
+			}
+			if (s.length() > 0)
+				storeWord(index++, Integer.parseInt(s.toString()));
+
+			inFile.close();
+		} catch (IOException io) {System.out.println("*** Error! Program not loaded ***");}
+		
 	}
 
 	//pre:  index, and word are in range
@@ -388,7 +413,7 @@ public class Simpletron {
 
 
 	public static void main(String [] args) {
-		
+	/*	
 		final int SENTINAL = -999999;
 		Scanner input = new Scanner(System.in);
 		System.out.println("*** Welcome to Simpletron! ***");
@@ -420,7 +445,11 @@ public class Simpletron {
 		System.out.println("*** Program execution begins  ***");
 		test.executeProgram();
 		test.dumpMemory();
-		
+		*/
+		Simpletron test = new Simpletron();
+		test.loadProgram("program1NC.txt");
+		test.executeProgram();
+		test.dumpMemory();
 		
 	}
 
